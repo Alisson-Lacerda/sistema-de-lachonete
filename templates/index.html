@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido Online - Sabor & Cia</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome (ícones) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- CSS principal -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><i class="fas fa-utensils"></i> Sabor & Cia</div>
+            <ul class="nav-links">
+                <li><a href="#home">Início</a></li>
+                <li><a href="#cardapio">Cardápio</a></li>
+                <li><a href="#pedido">Fazer Pedido</a></li>
+                <li><a href="#contato">Contato</a></li>
+            </ul>
+            <a href="tel:+5511999999999" class="nav-phone"><i class="fas fa-phone"></i> (11) 99999-9999</a>
+            <div class="mobile-menu"><i class="fas fa-bars"></i></div>
+        </div>
+    </nav>
+
+    <!-- ========== HERO ========== -->
+    <section class="hero" id="home">
+        <h1>Peça Online, Receba em Casa!</h1>
+        <p>O melhor da culinária artesanal direto para a sua mesa. Rápido, fácil e delicioso.</p>
+        <a href="#pedido" class="btn-primary"><i class="fas fa-shopping-bag"></i> Fazer Pedido Agora</a>
+    </section>
+
+    <!-- ========== CARDÁPIO ========== -->
+    <section id="cardapio">
+        <div class="container">
+            <div class="section-title">
+                <h2>Nosso Cardápio</h2>
+                <p>Escolha seus favoritos e adicione ao pedido</p>
+            </div>
+            <div class="menu-grid">
+
+                <div class="menu-item">
+                    <div class="menu-img"><i class="fas fa-hamburger"></i></div>
+                    <div class="menu-content">
+                        <div class="menu-header">
+                            <h3>X-Burger Artesanal</h3>
+                            <span class="price">R$ 24,90</span>
+                        </div>
+                        <p class="menu-desc">Pão brioche, hambúrguer 180g, queijo cheddar, bacon e molho especial.</p>
+                        <button class="add-to-cart" onclick="addItem('X-Burger Artesanal', 24.90)">
+                            <i class="fas fa-plus"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-img" style="background: linear-gradient(135deg, #27ae60, #2ecc71);"><i class="fas fa-drumstick-bite"></i></div>
+                    <div class="menu-content">
+                        <div class="menu-header">
+                            <h3>Frango à Parmegiana</h3>
+                            <span class="price">R$ 32,90</span>
+                        </div>
+                        <p class="menu-desc">Peito de frango empanado, molho de tomate caseiro e queijo derretido.</p>
+                        <button class="add-to-cart" onclick="addItem('Frango à Parmegiana', 32.90)">
+                            <i class="fas fa-plus"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-img" style="background: linear-gradient(135deg, #8e44ad, #9b59b6);"><i class="fas fa-pizza-slice"></i></div>
+                    <div class="menu-content">
+                        <div class="menu-header">
+                            <h3>Pizza Calabresa</h3>
+                            <span class="price">R$ 45,00</span>
+                        </div>
+                        <p class="menu-desc">Massa fina e crocante, calabresa premium, cebola e azeitonas.</p>
+                        <button class="add-to-cart" onclick="addItem('Pizza Calabresa', 45.00)">
+                            <i class="fas fa-plus"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-img" style="background: linear-gradient(135deg, #e67e22, #d35400);"><i class="fas fa-bacon"></i></div>
+                    <div class="menu-content">
+                        <div class="menu-header">
+                            <h3>Porção de Batata Frita</h3>
+                            <span class="price">R$ 18,90</span>
+                        </div>
+                        <p class="menu-desc">Batata frita crocante com cheddar e bacon. Serve 2 pessoas.</p>
+                        <button class="add-to-cart" onclick="addItem('Porção de Batata Frita', 18.90)">
+                            <i class="fas fa-plus"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-img" style="background: linear-gradient(135deg, #c0392b, #e74c3c);"><i class="fas fa-glass-whiskey"></i></div>
+                    <div class="menu-content">
+                        <div class="menu-header">
+                            <h3>Refrigerante 2L</h3>
+                            <span class="price">R$ 12,00</span>
+                        </div>
+                        <p class="menu-desc">Coca-Cola, Guaraná ou Sprite. Consulte disponibilidade.</p>
+                        <button class="add-to-cart" onclick="addItem('Refrigerante 2L', 12.00)">
+                            <i class="fas fa-plus"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-img" style="background: linear-gradient(135deg, #16a085, #1abc9c);"><i class="fas fa-ice-cream"></i></div>
+                    <div class="menu-content">
+                        <div class="menu-header">
+                            <h3>Sundae de Chocolate</h3>
+                            <span class="price">R$ 14,90</span>
+                        </div>
+                        <p class="menu-desc">Sorvete de creme, calda de chocolate, chantilly e granulado.</p>
+                        <button class="add-to-cart" onclick="addItem('Sundae de Chocolate', 14.90)">
+                            <i class="fas fa-plus"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== PEDIDO ========== -->
+    <section class="order-section" id="pedido">
+        <div class="container">
+            <div class="section-title">
+                <h2>Fazer Pedido</h2>
+                <p>Preencha seus dados e confirme seu pedido</p>
+            </div>
+            <div class="order-container">
+                <div class="order-form">
+
+                    <!-- Resumo do Carrinho -->
+                    <div class="cart-summary" id="cartSummary">
+                        <h4><i class="fas fa-shopping-cart"></i> Itens do Pedido</h4>
+                        <div id="cartItems">
+                            <p style="color: var(--gray); text-align: center;">Nenhum item adicionado ainda. Escolha do cardápio acima.</p>
+                        </div>
+                        <div class="cart-total" id="cartTotal" style="display: none;">
+                            <span>Total:</span>
+                            <span id="totalValue">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <!-- Formulário -->
+                    <form id="orderForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nome">Nome Completo *</label>
+                                <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="telefone">WhatsApp *</label>
+                                <input type="tel" id="telefone" name="telefone" placeholder="(11) 99999-9999" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="endereco">Endereço de Entrega *</label>
+                            <input type="text" id="endereco" name="endereco" placeholder="Rua, número, bairro" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pagamento">Forma de Pagamento *</label>
+                                <select id="pagamento" name="pagamento" required>
+                                    <option value="">Selecione</option>
+                                    <option value="dinheiro">Dinheiro</option>
+                                    <option value="cartao">Cartão na Entrega</option>
+                                    <option value="pix">PIX</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="troco">Troco para (se dinheiro)</label>
+                                <input type="text" id="troco" name="troco" placeholder="Ex: R$ 50,00">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="observacoes">Observações</label>
+                            <textarea id="observacoes" name="observacoes" rows="3" placeholder="Tirar cebola, ponto da carne, etc."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%; font-size: 1.2rem;">
+                            <i class="fas fa-paper-plane"></i> Enviar Pedido
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer id="contato">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>Sabor & Cia</h3>
+                <p>O melhor da gastronomia artesanal para você e sua família. Qualidade e sabor em cada pedido.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Horário de Funcionamento</h3>
+                <p>Segunda a Sexta: 11h às 23h</p>
+                <p>Sábado: 11h às 00h</p>
+                <p>Domingo: 12h às 22h</p>
+            </div>
+            <div class="footer-col">
+                <h3>Contato</h3>
+                <p><i class="fas fa-phone"></i> (11) 99999-9999</p>
+                <p><i class="fas fa-envelope"></i> contato@saborecia.com</p>
+                <p><i class="fas fa-map-marker-alt"></i> Rua Exemplo, 123 - Centro</p>
+            </div>
+            <div class="footer-col">
+                <h3>Redes Sociais</h3>
+                <a href="#"><i class="fab fa-facebook"></i> Facebook</a><br>
+                <a href="#"><i class="fab fa-instagram"></i> Instagram</a><br>
+                <a href="#"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Sabor & Cia. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- JavaScript principal -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+</html>
