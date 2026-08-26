@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Pedidos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+
+    <nav class="admin-navbar">
+        <div class="admin-nav-container">
+            <div class="admin-logo">
+                <i class="fas fa-utensils"></i> Painel de Pedidos
+            </div>
+            <div class="admin-actions">
+                <span class="last-update" id="lastUpdate">Atualizado: --:--:--</span>
+                <button class="btn-refresh" onclick="carregarPedidos()">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="admin-main">
+        <div class="admin-container">
+
+            <div class="stats-grid">
+                <div class="stat-card stat-pendente">
+                    <i class="fas fa-clock"></i>
+                    <div class="stat-info">
+                        <span class="stat-number" id="statPendente">0</span>
+                        <span class="stat-label">Pendentes</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-preparo">
+                    <i class="fas fa-fire"></i>
+                    <div class="stat-info">
+                        <span class="stat-number" id="statPreparo">0</span>
+                        <span class="stat-label">Em Preparo</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-pronto">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="stat-info">
+                        <span class="stat-number" id="statPronto">0</span>
+                        <span class="stat-label">Prontos</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-entregue">
+                    <i class="fas fa-motorcycle"></i>
+                    <div class="stat-info">
+                        <span class="stat-number" id="statEntregue">0</span>
+                        <span class="stat-label">Entregues</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pedidos-section">
+                <h2><i class="fas fa-list"></i> Lista de Pedidos</h2>
+                <div class="table-container">
+                    <table class="pedidos-table">
+                        <thead>
+                            <tr>
+                                <th>#ID</th>
+                                <th>Data/Hora</th>
+                                <th>Cliente</th>
+                                <th>Telefone</th>
+                                <th>Endereço</th>
+                                <th>Itens</th>
+                                <th>Total</th>
+                                <th>Pagamento</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pedidosTbody">
+                            <tr class="loading-row">
+                                <td colspan="10">
+                                    <i class="fas fa-spinner fa-spin"></i> Carregando pedidos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+
+</body>
+</html>
