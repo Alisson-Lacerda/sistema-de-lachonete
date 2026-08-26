@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_cors import CORS
+from functools import wraps
 from datetime import datetime
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -8,19 +9,40 @@ app = Flask(__name__)
 CORS(app)
 
 # ============================================================
-# CONFIGURAÇÃO DO BANCO DE DADOS (PostgreSQL)
+# CONFIGURAÇÃO DE SEGURANÇA — MUDE AQUI!
 # ============================================================
-# ⚠️ EDITE AQUI COM SEUS DADOS DO POSTGRESQL
+ADMIN_USERNAME = 'admin'
+ADMIN_PASSWORD = '123456'  # <-- MUDE ISSO! O dono escolhe essa senha
+
+# Chave secreta para criptografar as sessões (mude para algo aleatório)
+app.secret_key = 'SenhaSecreta123456'
+
+# ============================================================
+# CONFIGURAÇÃO DO BANCO DE DADOS (PostgreSQL) — MUDE AQUI!
+# ============================================================
 DB_CONFIG = {
     'dbname': 'pedidos_db',
     'user': 'postgres',
-    'password': 'SUA_SENHA_AQUI',
+    'password': '1234',  # <-- SENHA DO SEU POSTGRESQL
     'host': 'localhost',
     'port': '5432'
 }
 
 def get_db_connection():
     return psycopg2.connect(**DB_CONFIG)
+
+
+# ============================================================
+# DECORATOR DE AUTENTICAÇÃO
+# ============================================================
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 # ============================================================
@@ -33,9 +55,37 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/admin/login', methods=['GET', 'POST'])
+def login():
+    """
+    Página de login do admin.
+    GET: mostra o formulário
+    POST: verifica usuário/senha
+    """
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session['logged_in'] = True
+            return redirect(url_for('admin'))
+        else:
+            return render_template('login.html', erro='Usuário ou senha incorretos.')
+
+    return render_template('login.html')
+
+
+@app.route('/admin/logout')
+def logout():
+    """Desloga o usuário."""
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
+
+
 @app.route('/admin')
+@login_required
 def admin():
-    """Painel administrativo para o dono/funcionário."""
+    """Painel administrativo — só entra se estiver logado."""
     return render_template('admin.html')
 
 
@@ -91,9 +141,7 @@ def criar_pedido():
         cur.close()
         conn.close()
 
-        print(f"\n✅ NOVO PEDIDO #{pedido_id}")
-        print(f"   Cliente: {data['nome']}")
-        print(f"   Total: R$ {data['total']:.2f}")
+        print(f"\n✅ NOVO PEDIDO #{pedido_id} — {data['nome']} — R$ {data['total']:.2f}")
 
         return jsonify({
             "success": True,
