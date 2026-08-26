@@ -56,7 +56,7 @@ body {
 .admin-actions {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
 }
 
 .last-update {
@@ -78,6 +78,22 @@ body {
 
 .btn-refresh:hover {
     background: var(--primary-dark);
+}
+
+/* BOTÃO DE SOM */
+.btn-som {
+    background: #34495e;
+    color: var(--white);
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s;
+}
+
+.btn-som:hover {
+    background: #2c3e50;
 }
 
 /* BOTÃO DE LOGOUT */
