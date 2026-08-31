@@ -1,152 +1,31 @@
-// Carrinho de pedidos
+// ============================================================
+// CARRINHO GLOBAL
+// ============================================================
 let cart = [];
-
-/**
- * Adiciona um item ao carrinho.
- */
-function addItem(name, price) {
-    cart.push({ name, price });
-    updateCart();
-    showToast(name + ' adicionado!');
-}
-
-/**
- * Atualiza a visualização do carrinho.
- */
-function updateCart() {
-    const cartItemsDiv = document.getElementById('cartItems');
-    const cartTotalDiv = document.getElementById('cartTotal');
-    const totalValueSpan = document.getElementById('totalValue');
-
-    if (cart.length === 0) {
-        cartItemsDiv.innerHTML = '<p style="color: var(--gray); text-align: center;">Nenhum item adicionado ainda. Escolha do cardápio acima.</p>';
-        cartTotalDiv.style.display = 'none';
-        return;
-    }
-
-    let html = '';
-    let total = 0;
-    cart.forEach((item) => {
-        total += item.price;
-        html += `<div class="cart-item">
-            <span>${item.name}</span>
-            <span>R$ ${item.price.toFixed(2).replace('.', ',')}</span>
-        </div>`;
-    });
-
-    cartItemsDiv.innerHTML = html;
-    totalValueSpan.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
-    cartTotalDiv.style.display = 'flex';
-}
-
-/**
- * Mostra notificação na tela.
- */
-function showToast(message) {
-    const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.style.display = 'block';
-    setTimeout(() => {
-        toast.style.display = 'none';
-    }, 2500);
-}
-
-// ============================================================
-// ENVIO DO PEDIDO PARA O BACKEND
-// ============================================================
-
-document.getElementById('orderForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    if (cart.length === 0) {
-        showToast('Adicione itens ao pedido primeiro!');
-        return;
-    }
-
-    // Pega os dados do formulário
-    const formData = new FormData(this);
-    const data = {
-        nome: formData.get('nome'),
-        telefone: formData.get('telefone'),
-        endereco: formData.get('endereco'),
-        pagamento: formData.get('pagamento'),
-        troco: formData.get('troco'),
-        observacoes: formData.get('observacoes'),
-        itens: cart,
-        total: cart.reduce((sum, item) => sum + item.price, 0)
-    };
-
-    // Desabilita o botão para evitar cliques duplos
-    const btnSubmit = this.querySelector('button[type="submit"]');
-    const btnOriginalText = btnSubmit.innerHTML;
-    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-    btnSubmit.disabled = true;
-
-    try {
-        // ENVIA PARA O BACKEND FLASK
-        const response = await fetch('/api/pedidos', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (response.ok && result.success) {
-            showToast('Pedido #' + result.pedido_id + ' enviado com sucesso!');
-            cart = [];
-            updateCart();
-            this.reset();
-        } else {
-            showToast(result.message || 'Erro ao enviar pedido.');
-        }
-
-    } catch (error) {
-        console.error('Erro:', error);
-        showToast('Erro de conexão. Verifique se o servidor está rodando.');
-    } finally {
-        // Reabilita o botão
-        btnSubmit.innerHTML = btnOriginalText;
-        btnSubmit.disabled = false;
-    }
-});
-
-// Scroll suave
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
-            behavior: 'smooth'
-        });
-    });
-});
 
 // ============================================================
 // CONTROLE DE QUANTIDADE (+ e -)
 // ============================================================
 
-// Carrinho global (mantém compatibilidade com seu código existente)
-let cart = [];
-
 function updateQty(btn, delta) {
     // Pega o container de quantidade
     const control = btn.closest('.qty-control');
-    
+
     // Pega os dados do item
     const name = control.dataset.name;
     const price = parseFloat(control.dataset.price);
-    
+
     // Pega o span que mostra a quantidade
     const spanQtd = control.querySelector('.qty-value');
     let qtd = parseInt(spanQtd.innerText);
-    
+
     // Calcula nova quantidade
     qtd += delta;
     if (qtd < 0) qtd = 0;
-    
+
     // Atualiza o número na tela
     spanQtd.innerText = qtd;
-    
+
     // Pega o card pai para destacar
     const card = control.closest('.menu-item');
     if (qtd > 0) {
@@ -154,25 +33,25 @@ function updateQty(btn, delta) {
     } else {
         card.classList.remove('in-cart');
     }
-    
+
     // Atualiza o carrinho global
-    updateCart(name, price, qtd);
-    
+    updateCartItem(name, price, qtd);
+
     // Atualiza a visualização do pedido
     renderCart();
-    
-    // Mostra toast (se você tiver a função showToast)
+
+    // Mostra toast
     if (delta > 0 && qtd > 0) {
-        showToast(`${name} adicionado!`);
+        showToast(name + ' adicionado!');
     } else if (delta < 0 && qtd === 0) {
-        showToast(`${name} removido do carrinho.`);
+        showToast(name + ' removido do carrinho.');
     }
 }
 
-function updateCart(name, price, quantity) {
+function updateCartItem(name, price, quantity) {
     // Procura se o item já existe no carrinho
     const index = cart.findIndex(item => item.name === name);
-    
+
     if (quantity === 0) {
         // Remove do carrinho se quantidade for zero
         if (index > -1) {
@@ -195,17 +74,17 @@ function renderCart() {
     const cartItemsDiv = document.getElementById('cartItems');
     const cartTotalDiv = document.getElementById('cartTotal');
     const totalValueSpan = document.getElementById('totalValue');
-    
+
     if (cart.length === 0) {
         cartItemsDiv.innerHTML = '<p style="color: var(--gray); text-align: center;">Nenhum item adicionado ainda. Escolha do cardápio acima.</p>';
         cartTotalDiv.style.display = 'none';
         return;
     }
-    
+
     // Monta a lista de itens
     let html = '';
     let total = 0;
-    
+
     cart.forEach(item => {
         const subtotal = item.price * item.quantity;
         total += subtotal;
@@ -216,26 +95,38 @@ function renderCart() {
             </div>
         `;
     });
-    
+
     cartItemsDiv.innerHTML = html;
     cartTotalDiv.style.display = 'flex';
     totalValueSpan.innerText = 'R$ ' + total.toFixed(2).replace('.', ',');
 }
 
 // ============================================================
-// ENVIO DO PEDIDO (adaptado para o novo formato)
+// TOAST NOTIFICATION
 // ============================================================
 
-// Quando enviar o formulário, monta o array no formato que seu Flask espera
-document.getElementById('orderForm').addEventListener('submit', function(e) {
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.style.display = 'block';
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 2500);
+}
+
+// ============================================================
+// ENVIO DO PEDIDO PARA O BACKEND
+// ============================================================
+
+document.getElementById('orderForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     if (cart.length === 0) {
         showToast('Adicione pelo menos um item ao carrinho!');
         return;
     }
-    
-    // Monta os dados no formato que seu app.py espera
+
+    // Monta os dados no formato que o Flask espera
     const data = {
         nome: document.getElementById('nome').value,
         telefone: document.getElementById('telefone').value,
@@ -250,29 +141,53 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
         })),
         total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
     };
-    
-    // Envia para a API
-    fetch('/api/pedidos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            showToast('Pedido enviado com sucesso!');
+
+    // Desabilita o botão para evitar cliques duplos
+    const btnSubmit = this.querySelector('button[type="submit"]');
+    const btnOriginalText = btnSubmit.innerHTML;
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+    btnSubmit.disabled = true;
+
+    try {
+        const response = await fetch('/api/pedidos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            showToast('Pedido #' + result.pedido_id + ' enviado com sucesso!');
             // Limpa o carrinho
             cart = [];
             document.querySelectorAll('.qty-value').forEach(span => span.innerText = '0');
             document.querySelectorAll('.menu-item').forEach(card => card.classList.remove('in-cart'));
             renderCart();
-            document.getElementById('orderForm').reset();
+            this.reset();
         } else {
-            showToast(data.message || 'Erro ao enviar pedido.');
+            showToast(result.message || 'Erro ao enviar pedido.');
         }
-    })
-    .catch(err => {
-        console.error(err);
-        showToast('Erro de conexão. Tente novamente.');
+
+    } catch (error) {
+        console.error('Erro:', error);
+        showToast('Erro de conexão. Verifique se o servidor está rodando.');
+    } finally {
+        // Reabilita o botão
+        btnSubmit.innerHTML = btnOriginalText;
+        btnSubmit.disabled = false;
+    }
+});
+
+// ============================================================
+// SCROLL SUAVE
+// ============================================================
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+        });
     });
 });
