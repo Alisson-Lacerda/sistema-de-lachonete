@@ -383,3 +383,65 @@ footer {
         padding: 50px 20px;
     }
 }
+
+/* ============================================================
+   CONTROLE DE QUANTIDADE (+ e -)
+   ============================================================ */
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.qty-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  color: white;
+  line-height: 1;
+}
+
+.qty-minus {
+  background: #e74c3c;
+}
+
+.qty-minus:hover {
+  background: #c0392b;
+  transform: scale(1.1);
+}
+
+.qty-plus {
+  background: #27ae60;
+}
+
+.qty-plus:hover {
+  background: #219150;
+  transform: scale(1.1);
+}
+
+.qty-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2c3e50;
+  min-width: 24px;
+  text-align: center;
+  user-select: none;
+}
+
+/* Destaque quando o item está no carrinho */
+.menu-item.in-cart {
+  box-shadow: 0 0 0 3px #27ae60, 0 8px 25px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}

@@ -120,3 +120,159 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         });
     });
 });
+
+// ============================================================
+// CONTROLE DE QUANTIDADE (+ e -)
+// ============================================================
+
+// Carrinho global (mantém compatibilidade com seu código existente)
+let cart = [];
+
+function updateQty(btn, delta) {
+    // Pega o container de quantidade
+    const control = btn.closest('.qty-control');
+    
+    // Pega os dados do item
+    const name = control.dataset.name;
+    const price = parseFloat(control.dataset.price);
+    
+    // Pega o span que mostra a quantidade
+    const spanQtd = control.querySelector('.qty-value');
+    let qtd = parseInt(spanQtd.innerText);
+    
+    // Calcula nova quantidade
+    qtd += delta;
+    if (qtd < 0) qtd = 0;
+    
+    // Atualiza o número na tela
+    spanQtd.innerText = qtd;
+    
+    // Pega o card pai para destacar
+    const card = control.closest('.menu-item');
+    if (qtd > 0) {
+        card.classList.add('in-cart');
+    } else {
+        card.classList.remove('in-cart');
+    }
+    
+    // Atualiza o carrinho global
+    updateCart(name, price, qtd);
+    
+    // Atualiza a visualização do pedido
+    renderCart();
+    
+    // Mostra toast (se você tiver a função showToast)
+    if (delta > 0 && qtd > 0) {
+        showToast(`${name} adicionado!`);
+    } else if (delta < 0 && qtd === 0) {
+        showToast(`${name} removido do carrinho.`);
+    }
+}
+
+function updateCart(name, price, quantity) {
+    // Procura se o item já existe no carrinho
+    const index = cart.findIndex(item => item.name === name);
+    
+    if (quantity === 0) {
+        // Remove do carrinho se quantidade for zero
+        if (index > -1) {
+            cart.splice(index, 1);
+        }
+    } else if (index > -1) {
+        // Atualiza quantidade existente
+        cart[index].quantity = quantity;
+    } else {
+        // Adiciona novo item
+        cart.push({
+            name: name,
+            price: price,
+            quantity: quantity
+        });
+    }
+}
+
+function renderCart() {
+    const cartItemsDiv = document.getElementById('cartItems');
+    const cartTotalDiv = document.getElementById('cartTotal');
+    const totalValueSpan = document.getElementById('totalValue');
+    
+    if (cart.length === 0) {
+        cartItemsDiv.innerHTML = '<p style="color: var(--gray); text-align: center;">Nenhum item adicionado ainda. Escolha do cardápio acima.</p>';
+        cartTotalDiv.style.display = 'none';
+        return;
+    }
+    
+    // Monta a lista de itens
+    let html = '';
+    let total = 0;
+    
+    cart.forEach(item => {
+        const subtotal = item.price * item.quantity;
+        total += subtotal;
+        html += `
+            <div class="cart-item" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                <span><strong>${item.name}</strong> x${item.quantity}</span>
+                <span>R$ ${subtotal.toFixed(2).replace('.', ',')}</span>
+            </div>
+        `;
+    });
+    
+    cartItemsDiv.innerHTML = html;
+    cartTotalDiv.style.display = 'flex';
+    totalValueSpan.innerText = 'R$ ' + total.toFixed(2).replace('.', ',');
+}
+
+// ============================================================
+// ENVIO DO PEDIDO (adaptado para o novo formato)
+// ============================================================
+
+// Quando enviar o formulário, monta o array no formato que seu Flask espera
+document.getElementById('orderForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    if (cart.length === 0) {
+        showToast('Adicione pelo menos um item ao carrinho!');
+        return;
+    }
+    
+    // Monta os dados no formato que seu app.py espera
+    const data = {
+        nome: document.getElementById('nome').value,
+        telefone: document.getElementById('telefone').value,
+        endereco: document.getElementById('endereco').value,
+        pagamento: document.getElementById('pagamento').value,
+        troco: document.getElementById('troco').value,
+        observacoes: document.getElementById('observacoes').value,
+        itens: cart.map(item => ({
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity
+        })),
+        total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    };
+    
+    // Envia para a API
+    fetch('/api/pedidos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Pedido enviado com sucesso!');
+            // Limpa o carrinho
+            cart = [];
+            document.querySelectorAll('.qty-value').forEach(span => span.innerText = '0');
+            document.querySelectorAll('.menu-item').forEach(card => card.classList.remove('in-cart'));
+            renderCart();
+            document.getElementById('orderForm').reset();
+        } else {
+            showToast(data.message || 'Erro ao enviar pedido.');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        showToast('Erro de conexão. Tente novamente.');
+    });
+});

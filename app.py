@@ -133,12 +133,12 @@ def criar_pedido():
 
         pedido_id = cur.fetchone()[0]
 
-        # 2. Insere os itens do pedido
+        # 2. Insere os itens do pedido (agora com quantidade vinda do frontend)
         for item in data['itens']:
             cur.execute("""
                 INSERT INTO itens_pedido (pedido_id, nome_item, preco, quantidade)
                 VALUES (%s, %s, %s, %s)
-            """, (pedido_id, item['name'], item['price'], 1))
+            """, (pedido_id, item['name'], item['price'], item.get('quantity', 1)))
 
         conn.commit()
         cur.close()
