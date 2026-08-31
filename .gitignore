@@ -18,3 +18,7 @@ __pycache__/
 # Sistema operacional
 .DS_Store
 Thumbs.db
+
+
+# Arquivos de credenciais e notas locais
+senhas.gitignore.txt

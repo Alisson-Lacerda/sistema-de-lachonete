@@ -228,46 +228,6 @@ def atualizar_status(pedido_id):
         print(f"❌ ERRO ao atualizar status: {e}")
         return jsonify({"success": False, "message": str(e)}), 500
 
-@app.route('/init-db')
-def init_db():
-    """Rota temporária para criar as tabelas no banco remoto."""
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
-        
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS pedidos (
-                id SERIAL PRIMARY KEY,
-                nome VARCHAR(255) NOT NULL,
-                telefone VARCHAR(50) NOT NULL,
-                endereco TEXT NOT NULL,
-                pagamento VARCHAR(50) NOT NULL,
-                troco VARCHAR(50) DEFAULT '',
-                observacoes TEXT DEFAULT '',
-                total NUMERIC(10,2) DEFAULT 0,
-                status VARCHAR(50) DEFAULT 'pendente',
-                data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-        
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS itens_pedido (
-                id SERIAL PRIMARY KEY,
-                pedido_id INTEGER REFERENCES pedidos(id) ON DELETE CASCADE,
-                nome_item VARCHAR(255) NOT NULL,
-                preco NUMERIC(10,2) NOT NULL,
-                quantidade INTEGER NOT NULL DEFAULT 1
-            )
-        """)
-        
-        conn.commit()
-        cur.close()
-        conn.close()
-        
-        return "✅ Tabelas criadas com sucesso!"
-        
-    except Exception as e:
-        return f"❌ Erro: {str(e)}"
 # ============================================================
 # EXECUÇÃO
 # ============================================================
