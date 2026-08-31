@@ -1,34 +1,34 @@
-import os
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_cors import CORS
 from functools import wraps
 from datetime import datetime
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import os
 from dotenv import load_dotenv
-
-# Carrega variáveis do arquivo .env (em desenvolvimento)
-load_dotenv()
+load_dotenv()  # Carrega variáveis do .env localmente
 
 app = Flask(__name__)
 CORS(app)
 
 # ============================================================
-# CONFIGURAÇÃO DE SEGURANÇA — via variáveis de ambiente
+# CONFIGURAÇÃO DE SEGURANÇA — MUDE AQUI!
 # ============================================================
 ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
-app.secret_key = os.environ.get('SECRET_KEY', 'chave-padrao-mude-isso')
+ADMIN_PASSWORD = '123456'  # <-- MUDE ISSO! O dono escolhe essa senha
+
+# Chave secreta para criptografar as sessões (mude para algo aleatório)
+app.secret_key = os.getenv('SECRET_KEY', 'SenhaSecreta123456')
 
 # ============================================================
-# CONFIGURAÇÃO DO BANCO DE DADOS — via variáveis de ambiente
+# CONFIGURAÇÃO DO BANCO DE DADOS (PostgreSQL) — MUDE AQUI!
 # ============================================================
 DB_CONFIG = {
-    'dbname': os.environ.get('DB_NAME', 'pedidos_db'),
-    'user': os.environ.get('DB_USER', 'postgres'),
-    'password': os.environ.get('DB_PASSWORD', ''),
-    'host': os.environ.get('DB_HOST', 'localhost'),
-    'port': os.environ.get('DB_PORT', '5432')
+    'dbname': os.getenv('DB_NAME', 'pedidos_db'),
+    'user': os.getenv('DB_USER', 'postgres'),
+    'password': os.getenv('DB_PASSWORD', '1234'),
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'port': os.getenv('DB_PORT', '5432')
 }
 
 def get_db_connection():
@@ -54,11 +54,17 @@ def login_required(f):
 
 @app.route('/')
 def index():
+    """Landing page para os clientes fazerem pedidos."""
     return render_template('index.html')
 
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def login():
+    """
+    Página de login do admin.
+    GET: mostra o formulário
+    POST: verifica usuário/senha
+    """
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -74,6 +80,7 @@ def login():
 
 @app.route('/admin/logout')
 def logout():
+    """Desloga o usuário."""
     session.pop('logged_in', None)
     return redirect(url_for('login'))
 
@@ -81,6 +88,7 @@ def logout():
 @app.route('/admin')
 @login_required
 def admin():
+    """Painel administrativo — só entra se estiver logado."""
     return render_template('admin.html')
 
 
@@ -90,8 +98,12 @@ def admin():
 
 @app.route('/api/pedidos', methods=['POST'])
 def criar_pedido():
+    """
+    Recebe o pedido do cliente e salva no PostgreSQL.
+    """
     data = request.get_json()
 
+    # Validação
     campos_obrigatorios = ['nome', 'telefone', 'endereco', 'pagamento', 'itens']
     for campo in campos_obrigatorios:
         if not data.get(campo):
@@ -104,18 +116,24 @@ def criar_pedido():
         conn = get_db_connection()
         cur = conn.cursor()
 
+        # 1. Insere o pedido
         cur.execute("""
             INSERT INTO pedidos (nome, telefone, endereco, pagamento, troco, observacoes, total)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
             RETURNING id
         """, (
-            data['nome'], data['telefone'], data['endereco'],
-            data['pagamento'], data.get('troco', ''),
-            data.get('observacoes', ''), data.get('total', 0)
+            data['nome'],
+            data['telefone'],
+            data['endereco'],
+            data['pagamento'],
+            data.get('troco', ''),
+            data.get('observacoes', ''),
+            data.get('total', 0)
         ))
 
         pedido_id = cur.fetchone()[0]
 
+        # 2. Insere os itens do pedido
         for item in data['itens']:
             cur.execute("""
                 INSERT INTO itens_pedido (pedido_id, nome_item, preco, quantidade)
@@ -126,6 +144,8 @@ def criar_pedido():
         cur.close()
         conn.close()
 
+        print(f"\n✅ NOVO PEDIDO #{pedido_id} — {data['nome']} — R$ {data['total']:.2f}")
+
         return jsonify({
             "success": True,
             "message": "Pedido recebido com sucesso!",
@@ -133,23 +153,28 @@ def criar_pedido():
         }), 201
 
     except Exception as e:
-        print(f"ERRO ao salvar pedido: {e}")
+        print(f"❌ ERRO ao salvar pedido: {e}")
         return jsonify({"success": False, "message": "Erro interno no servidor."}), 500
 
 
 # ============================================================
-# API — LISTAR PEDIDOS
+# API — LISTAR PEDIDOS (para o painel admin)
 # ============================================================
 
 @app.route('/api/pedidos', methods=['GET'])
 def listar_pedidos():
+    """
+    Retorna todos os pedidos com seus itens.
+    """
     try:
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=RealDictCursor)
 
+        # Busca os pedidos
         cur.execute("SELECT * FROM pedidos ORDER BY data_hora DESC")
         pedidos = cur.fetchall()
 
+        # Para cada pedido, busca os itens
         for pedido in pedidos:
             cur.execute("""
                 SELECT nome_item, preco, quantidade
@@ -164,15 +189,19 @@ def listar_pedidos():
         return jsonify({"success": True, "pedidos": pedidos})
 
     except Exception as e:
+        print(f"❌ ERRO ao listar pedidos: {e}")
         return jsonify({"success": False, "message": str(e)}), 500
 
 
 # ============================================================
-# API — ATUALIZAR STATUS
+# API — ATUALIZAR STATUS DO PEDIDO
 # ============================================================
 
 @app.route('/api/pedidos/<int:pedido_id>/status', methods=['PUT'])
 def atualizar_status(pedido_id):
+    """
+    Atualiza o status de um pedido (pendente → em_preparo → pronto → entregue).
+    """
     data = request.get_json()
     novo_status = data.get('status')
 
@@ -188,15 +217,57 @@ def atualizar_status(pedido_id):
         cur.close()
         conn.close()
 
+        print(f"🔄 Pedido #{pedido_id} → {novo_status}")
+
         return jsonify({
             "success": True,
             "message": f"Pedido #{pedido_id} atualizado para '{novo_status}'"
         })
 
     except Exception as e:
+        print(f"❌ ERRO ao atualizar status: {e}")
         return jsonify({"success": False, "message": str(e)}), 500
 
-
+@app.route('/init-db')
+def init_db():
+    """Rota temporária para criar as tabelas no banco remoto."""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS pedidos (
+                id SERIAL PRIMARY KEY,
+                nome VARCHAR(255) NOT NULL,
+                telefone VARCHAR(50) NOT NULL,
+                endereco TEXT NOT NULL,
+                pagamento VARCHAR(50) NOT NULL,
+                troco VARCHAR(50) DEFAULT '',
+                observacoes TEXT DEFAULT '',
+                total NUMERIC(10,2) DEFAULT 0,
+                status VARCHAR(50) DEFAULT 'pendente',
+                data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS itens_pedido (
+                id SERIAL PRIMARY KEY,
+                pedido_id INTEGER REFERENCES pedidos(id) ON DELETE CASCADE,
+                nome_item VARCHAR(255) NOT NULL,
+                preco NUMERIC(10,2) NOT NULL,
+                quantidade INTEGER NOT NULL DEFAULT 1
+            )
+        """)
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return "✅ Tabelas criadas com sucesso!"
+        
+    except Exception as e:
+        return f"❌ Erro: {str(e)}"
 # ============================================================
 # EXECUÇÃO
 # ============================================================
