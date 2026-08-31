@@ -15,6 +15,7 @@
 
     <!-- CSS principal -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+<base target="_blank">
 </head>
 <body>
 
@@ -58,9 +59,11 @@
                             <span class="price">R$ 24,90</span>
                         </div>
                         <p class="menu-desc">Pão brioche, hambúrguer 180g, queijo cheddar, bacon e molho especial.</p>
-                        <button class="add-to-cart" onclick="addItem('X-Burger Artesanal', 24.90)">
-                            <i class="fas fa-plus"></i> Adicionar
-                        </button>
+                        <div class="qty-control" data-name="X-Burger Artesanal" data-price="24.90">
+                            <button class="qty-btn qty-minus" onclick="updateQty(this, -1)">−</button>
+                            <span class="qty-value">0</span>
+                            <button class="qty-btn qty-plus" onclick="updateQty(this, 1)">+</button>
+                        </div>
                     </div>
                 </div>
 
@@ -72,9 +75,11 @@
                             <span class="price">R$ 32,90</span>
                         </div>
                         <p class="menu-desc">Peito de frango empanado, molho de tomate caseiro e queijo derretido.</p>
-                        <button class="add-to-cart" onclick="addItem('Frango à Parmegiana', 32.90)">
-                            <i class="fas fa-plus"></i> Adicionar
-                        </button>
+                        <div class="qty-control" data-name="Frango à Parmegiana" data-price="32.90">
+                            <button class="qty-btn qty-minus" onclick="updateQty(this, -1)">−</button>
+                            <span class="qty-value">0</span>
+                            <button class="qty-btn qty-plus" onclick="updateQty(this, 1)">+</button>
+                        </div>
                     </div>
                 </div>
 
@@ -86,9 +91,11 @@
                             <span class="price">R$ 45,00</span>
                         </div>
                         <p class="menu-desc">Massa fina e crocante, calabresa premium, cebola e azeitonas.</p>
-                        <button class="add-to-cart" onclick="addItem('Pizza Calabresa', 45.00)">
-                            <i class="fas fa-plus"></i> Adicionar
-                        </button>
+                        <div class="qty-control" data-name="Pizza Calabresa" data-price="45.00">
+                            <button class="qty-btn qty-minus" onclick="updateQty(this, -1)">−</button>
+                            <span class="qty-value">0</span>
+                            <button class="qty-btn qty-plus" onclick="updateQty(this, 1)">+</button>
+                        </div>
                     </div>
                 </div>
 
@@ -100,9 +107,11 @@
                             <span class="price">R$ 18,90</span>
                         </div>
                         <p class="menu-desc">Batata frita crocante com cheddar e bacon. Serve 2 pessoas.</p>
-                        <button class="add-to-cart" onclick="addItem('Porção de Batata Frita', 18.90)">
-                            <i class="fas fa-plus"></i> Adicionar
-                        </button>
+                        <div class="qty-control" data-name="Porção de Batata Frita" data-price="18.90">
+                            <button class="qty-btn qty-minus" onclick="updateQty(this, -1)">−</button>
+                            <span class="qty-value">0</span>
+                            <button class="qty-btn qty-plus" onclick="updateQty(this, 1)">+</button>
+                        </div>
                     </div>
                 </div>
 
@@ -114,9 +123,11 @@
                             <span class="price">R$ 12,00</span>
                         </div>
                         <p class="menu-desc">Coca-Cola, Guaraná ou Sprite. Consulte disponibilidade.</p>
-                        <button class="add-to-cart" onclick="addItem('Refrigerante 2L', 12.00)">
-                            <i class="fas fa-plus"></i> Adicionar
-                        </button>
+                        <div class="qty-control" data-name="Refrigerante 2L" data-price="12.00">
+                            <button class="qty-btn qty-minus" onclick="updateQty(this, -1)">−</button>
+                            <span class="qty-value">0</span>
+                            <button class="qty-btn qty-plus" onclick="updateQty(this, 1)">+</button>
+                        </div>
                     </div>
                 </div>
 
@@ -128,9 +139,11 @@
                             <span class="price">R$ 14,90</span>
                         </div>
                         <p class="menu-desc">Sorvete de creme, calda de chocolate, chantilly e granulado.</p>
-                        <button class="add-to-cart" onclick="addItem('Sundae de Chocolate', 14.90)">
-                            <i class="fas fa-plus"></i> Adicionar
-                        </button>
+                        <div class="qty-control" data-name="Sundae de Chocolate" data-price="14.90">
+                            <button class="qty-btn qty-minus" onclick="updateQty(this, -1)">−</button>
+                            <span class="qty-value">0</span>
+                            <button class="qty-btn qty-plus" onclick="updateQty(this, 1)">+</button>
+                        </div>
                     </div>
                 </div>
 
